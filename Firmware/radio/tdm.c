@@ -670,8 +670,11 @@ tdm_serial_loop(void)
 			send_at_command = false;
 		} else {
 			// get a packet from the serial port
-			len = packet_get_next(max_xmit, pbuf);
+			memset(pbuf, 0x40, 16);
+			len = packet_get_next(max_xmit-16, pbuf+16) + 16;
 			trailer.command = packet_is_injected();
+			if (len == 16)
+				len = 0;
 		}
 
 		if (len > max_data_packet_length) {
@@ -942,6 +945,8 @@ tdm_init(void)
 	if (i > max_data_packet_length) {
 		i = max_data_packet_length;
 	}
+	//TODO: decrease length here, test
+	printf("setting max to %d\n", i);
 	packet_set_max_xmit(i);
 
 	// crc_test();
